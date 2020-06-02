@@ -33,6 +33,10 @@ public class Weapon {
         return type;
     }
 
+    public int getPower() {
+        return power;
+    }
+
     public float getUsageTimePercentage() {
         return time / period;
     }

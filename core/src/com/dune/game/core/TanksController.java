@@ -67,10 +67,8 @@ public class TanksController extends ObjectPool<Tank> {
                         }
                     }
                 }
-
             }
         }
-
     }
 
     public void aiUpdate(float dt) {

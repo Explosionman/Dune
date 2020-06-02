@@ -79,6 +79,19 @@ public class GameController {
                 }
             }
         }
+
+        for (int i = 0; i < projectilesController.activeList.size(); i++) {
+            Projectile p = projectilesController.getActiveList().get(i);
+            for (int j = 0; j < tanksController.activeSize(); j++) {
+                Tank t1 = tanksController.getActiveList().get(j);
+                float dst = t1.getPosition().dst(p.getPosition());
+                //Этой реализацией не доволен, не успел сделать лучше
+                if (dst < 32 && t1.getOwnerType().equals(Tank.Owner.AI)) {
+                    p.deactivate();
+                    t1.takeDamage();
+                }
+            }
+        }
     }
 
     public boolean isTankSelected(Tank tank) {

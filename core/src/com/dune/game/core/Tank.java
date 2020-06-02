@@ -33,6 +33,10 @@ public class Tank extends GameObject implements Poolable {
         return weapon;
     }
 
+    public void takeDamage() {
+        hp -= weapon.getPower();
+    }
+
     public void moveBy(Vector2 value) {
         boolean stayStill = false;
         if (position.dst(destination) < 3.0f) {
@@ -70,7 +74,7 @@ public class Tank extends GameObject implements Poolable {
         this.position.set(x, y);
         this.ownerType = ownerType;
         this.speed = 120.0f;
-        this.hpMax = 100;
+        this.hpMax = 10;
         this.hp = this.hpMax;
         if (MathUtils.random() < 0.5f) {
             this.weapon = new Weapon(Weapon.Type.HARVEST, 3.0f, 1);
@@ -91,6 +95,10 @@ public class Tank extends GameObject implements Poolable {
             destination.set(target.position);
             if (position.dst(target.position) < 240.0f) {
                 destination.set(position);
+            }
+            //Прекращаем стрельбу после уничтожения цели
+            if (target.hp == 0) {
+                target = null;
             }
         }
         // Если танку необходимо доехать до какой-то точки, он работает в этом условии
@@ -159,6 +167,13 @@ public class Tank extends GameObject implements Poolable {
         }
         batch.draw(textures[getCurrentFrameIndex()], position.x - 40, position.y - 40, 40, 40, 80, 80, 1, 1, angle);
         batch.draw(weaponsTextures[weapon.getType().getImageIndex()], position.x - 40, position.y - 40, 40, 40, 80, 80, 1, 1, weapon.getAngle());
+
+        //Отрисовка ХП
+        batch.setColor(0.2f, 0.2f, 0.0f, 1.0f);
+        batch.draw(progressbarTexture, position.x - 32, position.y + 42, 64, 12);
+        batch.setColor(1.0f, 0.0f, 0.0f, 1.0f);
+        batch.draw(progressbarTexture, position.x - 30, position.y + 44, 60 * hp / hpMax, 8);
+        batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 
         batch.setColor(1, 1, 1, 1);
         if (weapon.getType() == Weapon.Type.HARVEST && weapon.getUsageTimePercentage() > 0.0f) {
