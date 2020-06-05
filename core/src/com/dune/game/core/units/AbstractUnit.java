@@ -1,33 +1,54 @@
-package com.dune.game.core;
+package com.dune.game.core.units;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.dune.game.core.*;
 
-public class Tank extends GameObject implements Poolable {
-    public enum Owner {
-        PLAYER, AI
+public abstract class AbstractUnit extends GameObject implements Poolable, Targetable {
+    protected UnitType unitType;
+    protected Owner ownerType;
+    protected Weapon weapon;
+
+    protected Vector2 destination;
+    protected TextureRegion[] textures;
+    protected TextureRegion weaponTexture;
+
+    protected TextureRegion progressbarTexture;
+    protected int hp;
+    protected int hpMax;
+    protected float angle;
+    protected float speed;
+    protected float rotationSpeed;
+
+    protected float moveTimer;
+    protected float lifeTime;
+    protected float timePerFrame;
+    protected int container;
+    protected int containerCapacity;
+
+    protected Targetable target;
+    protected float minDstToActiveTarget;
+
+    @Override
+    public TargetType getType() {
+        return TargetType.UNIT;
     }
 
-    private Owner ownerType;
-    private Weapon weapon;
-    private Vector2 destination;
-    private TextureRegion[] textures;
-    private TextureRegion[] weaponsTextures;
+    public boolean takeDamage(int damage) {
+        if (!isActive()) {
+            return false;
+        }
+        hp -= damage;
+        if (hp <= 0) {
+            return true;
+        }
+        return false;
+    }
 
-    private TextureRegion progressbarTexture;
-    private int hp;
-    private int hpMax;
-    private float angle;
-    private float speed;
-    private float rotationSpeed;
-
-    private float moveTimer;
-    private float lifeTime;
-    private float timePerFrame;
-    private int container;
-    private Tank target;
+    public UnitType getUnitType() {
+        return unitType;
+    }
 
     public Weapon getWeapon() {
         return weapon;
@@ -53,32 +74,14 @@ public class Tank extends GameObject implements Poolable {
         return hp > 0;
     }
 
-    public Tank(GameController gc) {
+    public AbstractUnit(GameController gc) {
         super(gc);
         this.progressbarTexture = Assets.getInstance().getAtlas().findRegion("progressbar");
-        this.weaponsTextures = new TextureRegion[]{
-                Assets.getInstance().getAtlas().findRegion("turret"),
-                Assets.getInstance().getAtlas().findRegion("harvester")
-        };
-
         this.timePerFrame = 0.08f;
         this.rotationSpeed = 90.0f;
     }
 
-    public void setup(Owner ownerType, float x, float y) {
-        this.textures = Assets.getInstance().getAtlas().findRegion("tankcore").split(64, 64)[0];
-        this.position.set(x, y);
-        this.ownerType = ownerType;
-        this.speed = 120.0f;
-        this.hpMax = 100;
-        this.hp = this.hpMax;
-        if (MathUtils.random() < 0.5f) {
-            this.weapon = new Weapon(Weapon.Type.HARVEST, 3.0f, 1);
-        } else {
-            this.weapon = new Weapon(Weapon.Type.GROUND, 1.5f, 1);
-        }
-        this.destination = new Vector2(position);
-    }
+    public abstract void setup(Owner ownerType, float x, float y);
 
     private int getCurrentFrameIndex() {
         return (int) (moveTimer / timePerFrame) % textures.length;
@@ -88,8 +91,8 @@ public class Tank extends GameObject implements Poolable {
         lifeTime += dt;
         // Если у танка есть цель, он пытается ее атаковать
         if (target != null) {
-            destination.set(target.position);
-            if (position.dst(target.position) < 240.0f) {
+            destination.set(target.getPosition());
+            if (position.dst(target.getPosition()) < minDstToActiveTarget) {
                 destination.set(position);
             }
         }
@@ -110,32 +113,12 @@ public class Tank extends GameObject implements Poolable {
 
     public void commandMoveTo(Vector2 point) {
         destination.set(point);
+        target = null;
     }
 
-    public void commandAttack(Tank target) {
-        this.target = target;
-    }
+    public abstract void commandAttack(Targetable target);
 
-    public void updateWeapon(float dt) {
-        if (weapon.getType() == Weapon.Type.GROUND && target != null) {
-            float angleTo = tmp.set(target.position).sub(position).angle();
-            weapon.setAngle(rotateTo(weapon.getAngle(), angleTo, 180.0f, dt));
-            int power = weapon.use(dt);
-            if (power > -1) {
-                gc.getProjectilesController().setup(position, weapon.getAngle());
-            }
-        }
-        if (weapon.getType() == Weapon.Type.HARVEST) {
-            if (gc.getMap().getResourceCount(this) > 0) {
-                int result = weapon.use(dt);
-                if (result > -1) {
-                    container += gc.getMap().harvestResource(this, result);
-                }
-            } else {
-                weapon.reset();
-            }
-        }
-    }
+    public abstract void updateWeapon(float dt);
 
     public void checkBounds() {
         if (position.x < 40) {
@@ -153,19 +136,30 @@ public class Tank extends GameObject implements Poolable {
     }
 
     public void render(SpriteBatch batch) {
-        if (gc.isTankSelected(this)) {
-            float c = 0.7f + (float) Math.sin(lifeTime * 8.0f) * 0.3f;
-            batch.setColor(c, c, c, 1.0f);
+        float c = 1.0f;
+        float r = 0.0f;
+        if (gc.isUnitSelected(this)) {
+            c = 0.7f + (float) Math.sin(lifeTime * 8.0f) * 0.3f;
         }
+        if (ownerType == Owner.AI) {
+            r = 0.4f;
+        }
+        batch.setColor(c, c - r, c - r, 1.0f);
         batch.draw(textures[getCurrentFrameIndex()], position.x - 40, position.y - 40, 40, 40, 80, 80, 1, 1, angle);
-        batch.draw(weaponsTextures[weapon.getType().getImageIndex()], position.x - 40, position.y - 40, 40, 40, 80, 80, 1, 1, weapon.getAngle());
+
+        batch.draw(weaponTexture, position.x - 40, position.y - 40, 40, 40, 80, 80, 1, 1, weapon.getAngle());
 
         batch.setColor(1, 1, 1, 1);
-        if (weapon.getType() == Weapon.Type.HARVEST && weapon.getUsageTimePercentage() > 0.0f) {
+        renderGui(batch);
+    }
+
+    public void renderGui(SpriteBatch batch) {
+        if (hp < hpMax) {
             batch.setColor(0.2f, 0.2f, 0.0f, 1.0f);
             batch.draw(progressbarTexture, position.x - 32, position.y + 30, 64, 12);
-            batch.setColor(1.0f, 1.0f, 0.0f, 1.0f);
-            batch.draw(progressbarTexture, position.x - 30, position.y + 32, 60 * weapon.getUsageTimePercentage(), 8);
+            batch.setColor(0.0f, 1.0f, 0.0f, 1.0f);
+            float percentage = (float) hp / hpMax;
+            batch.draw(progressbarTexture, position.x - 30, position.y + 32, 60 * percentage, 8);
             batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
