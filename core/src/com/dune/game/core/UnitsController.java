@@ -38,16 +38,16 @@ public class UnitsController {
         this.playerUnits = new ArrayList<>();
         this.aiUnits = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            createBattleTank(Owner.PLAYER, MathUtils.random(80, 500), MathUtils.random(80, 640));
+            createBattleTank(Owner.PLAYER, MathUtils.random(80, 1200), MathUtils.random(80, 640));
         }
         for (int i = 0; i < 2; i++) {
-            createHarvester(Owner.PLAYER, MathUtils.random(80, 500), MathUtils.random(80, 640));
+            createHarvester(Owner.PLAYER, MathUtils.random(80, 1200), MathUtils.random(80, 640));
         }
         for (int i = 0; i < 2; i++) {
-            createBattleTank(Owner.AI, MathUtils.random(700, 1200), MathUtils.random(80, 640));
+            createBattleTank(Owner.AI, MathUtils.random(80, 1200), MathUtils.random(80, 640));
         }
-        for (int i = 1; i < 2; i++) {
-            createHarvester(Owner.AI, MathUtils.random(700, 1200), MathUtils.random(80, 640));
+        for (int i = 0; i < 2; i++) {
+            createHarvester(Owner.AI, MathUtils.random(80, 1200), MathUtils.random(80, 640));
         }
     }
 

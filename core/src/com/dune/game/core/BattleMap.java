@@ -4,9 +4,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.dune.game.core.units.BattleTank;
+import com.dune.game.core.units.Harvester;
 
 public class BattleMap {
     private class Cell {
@@ -55,19 +54,17 @@ public class BattleMap {
         }
     }
 
-    public static final int COLUMNS_COUNT = 16;
-    public static final int ROWS_COUNT = 9;
+    public static final int COLUMNS_COUNT = 20;
+    public static final int ROWS_COUNT = 12;
     public static final int CELL_SIZE = 80;
-    List<Vector2> resourcesList;
-    Vector2 temp;
+    public static final int MAP_WIDTH_PX = COLUMNS_COUNT * CELL_SIZE;
+    public static final int MAP_HEIGHT_PX = ROWS_COUNT * CELL_SIZE;
 
     private TextureRegion grassTexture;
     private TextureRegion resourceTexture;
     private Cell[][] cells;
 
     public BattleMap() {
-        resourcesList = new ArrayList<>();
-        temp = new Vector2();
         this.grassTexture = Assets.getInstance().getAtlas().findRegion("grass");
         this.resourceTexture = Assets.getInstance().getAtlas().findRegion("resource");
         this.cells = new Cell[COLUMNS_COUNT][ROWS_COUNT];
@@ -76,30 +73,12 @@ public class BattleMap {
                 cells[i][j] = new Cell(i, j);
             }
         }
-        findResources();
-    }
-
-    public List<Vector2> getResourcesList() {
-        return resourcesList;
     }
 
     public int getResourceCount(Vector2 point) {
         int cx = (int) (point.x / CELL_SIZE);
         int cy = (int) (point.y / CELL_SIZE);
         return cells[cx][cy].resource;
-    }
-
-    public void findResources() {
-        //Харвестеры AI будут собирать ресурсы на своей половине карты
-        for (int i = 7; i < COLUMNS_COUNT; i++) {
-            for (int j = 0; j < ROWS_COUNT; j++) {
-                temp.set(i * 80, j * 80);
-                if ((cells[(int) temp.x / 80][(int) temp.y / 80].resourceRegenerationRate > 0)) {
-                    Vector2 rc = new Vector2(temp.x + 40.0f, temp.y + 40.0f);
-                    resourcesList.add(rc);
-                }
-            }
-        }
     }
 
     public int harvestResource(Vector2 point, int power) {
