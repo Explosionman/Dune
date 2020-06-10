@@ -14,6 +14,7 @@ public class UnitsController {
     private GameController gc;
     private BattleTanksController battleTanksController;
     private HarvestersController harvestersController;
+    private MainBase playerMainBase;
     private List<AbstractUnit> units;
     private List<AbstractUnit> playerUnits;
     private List<AbstractUnit> aiUnits;
@@ -30,24 +31,30 @@ public class UnitsController {
         return aiUnits;
     }
 
+    public MainBase getPlayerMainBase() {
+        return playerMainBase;
+    }
+
     public UnitsController(GameController gc) {
         this.gc = gc;
         this.battleTanksController = new BattleTanksController(gc);
         this.harvestersController = new HarvestersController(gc);
+        this.playerMainBase = new MainBase(gc);
+        this.playerMainBase.setup(Owner.PLAYER, 160, 160);
         this.units = new ArrayList<>();
         this.playerUnits = new ArrayList<>();
         this.aiUnits = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            createBattleTank(Owner.PLAYER, MathUtils.random(80, 1200), MathUtils.random(80, 640));
+            createBattleTank(Owner.PLAYER, MathUtils.random(240, 600), MathUtils.random(240, 640));
         }
         for (int i = 0; i < 2; i++) {
-            createHarvester(Owner.PLAYER, MathUtils.random(80, 1200), MathUtils.random(80, 640));
+            createHarvester(Owner.PLAYER, MathUtils.random(240, 600), MathUtils.random(240, 640));
         }
         for (int i = 0; i < 2; i++) {
-            createBattleTank(Owner.AI, MathUtils.random(80, 1200), MathUtils.random(80, 640));
+            createBattleTank(Owner.AI, MathUtils.random(900, 1400), MathUtils.random(400, 800));
         }
         for (int i = 0; i < 2; i++) {
-            createHarvester(Owner.AI, MathUtils.random(80, 1200), MathUtils.random(80, 640));
+            createHarvester(Owner.AI, MathUtils.random(900, 1400), MathUtils.random(400, 800));
         }
     }
 
@@ -80,6 +87,7 @@ public class UnitsController {
     public void render(SpriteBatch batch) {
         battleTanksController.render(batch);
         harvestersController.render(batch);
+        playerMainBase.render(batch);
     }
 
     public AbstractUnit getNearestAiUnit(Vector2 point) {

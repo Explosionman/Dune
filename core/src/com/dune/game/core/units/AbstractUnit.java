@@ -27,6 +27,7 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
     protected float timePerFrame;
     protected int container;
     protected int containerCapacity;
+    protected int temp;
 
     protected Targetable target;
     protected float minDstToActiveTarget;
@@ -53,6 +54,10 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
 
     public Weapon getWeapon() {
         return weapon;
+    }
+
+    public int getContainer() {
+        return container;
     }
 
     public void moveBy(Vector2 value) {
@@ -188,5 +193,11 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
             srcAngle -= 360.0f;
         }
         return srcAngle;
+    }
+
+    public int putCrystallsOnBase() {
+        temp = container;
+        container = 0;
+        return temp;
     }
 }

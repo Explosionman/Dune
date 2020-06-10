@@ -35,6 +35,9 @@ public class Harvester extends AbstractUnit {
                 container += gc.getMap().harvestResource(position, result);
                 if (container > containerCapacity) {
                     container = containerCapacity;
+                    //После доработки главной базы можно добавить, чтобы харвестер сам отвозил кристаллы на базу,
+                    //если он полный
+                    //commandMoveTo(gc.getUnitsController().getPlayerMainBase().getPosition());
                 }
             }
         } else {

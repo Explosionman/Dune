@@ -57,4 +57,8 @@ public class PlayerLogic {
             }
         }
     }
+
+    public void takeMoney(int crystalls) {
+        this.money += crystalls;
+    }
 }

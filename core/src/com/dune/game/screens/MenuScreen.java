@@ -1,17 +1,11 @@
 package com.dune.game.screens;
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Align;
 
 public class MenuScreen extends AbstractScreen {
+
     public MenuScreen(SpriteBatch batch) {
         super(batch);
     }
@@ -35,5 +29,25 @@ public class MenuScreen extends AbstractScreen {
 
     @Override
     public void dispose() {
+    }
+
+    public InputProcessor prepareInput() {
+        return new InputAdapter() {
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                if (button == Input.Buttons.LEFT) {
+
+                }
+                return true;
+            }
+
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                if (button == Input.Buttons.LEFT) {
+
+                }
+                return true;
+            }
+        };
     }
 }

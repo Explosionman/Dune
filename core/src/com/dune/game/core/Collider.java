@@ -4,6 +4,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.units.BattleTank;
+import com.dune.game.core.units.Harvester;
+import com.dune.game.core.units.UnitType;
 
 import java.util.List;
 
@@ -48,7 +50,19 @@ public class Collider {
                 }
             }
         }
+        for (int i = 0; i < units.size() - 1; i++) {
+            AbstractUnit u1 = units.get(i);
+            float dst = u1.getPosition().dst(gc.getUnitsController().getPlayerMainBase().getPosition());
+            if (dst < 140) {
+                float colLengthD2 = (145 - dst) / 2;
+                tmp.set(u1.getPosition()).sub(gc.getUnitsController().getPlayerMainBase().getPosition()).nor().scl(colLengthD2);
+                tmp.scl(1);
+                u1.moveBy(tmp);
+                if (u1.getOwnerType() == gc.getUnitsController().getPlayerMainBase().getOwner() && u1.getUnitType() == UnitType.HARVESTER) {
+                    gc.getPlayerLogic().takeMoney(u1.getContainer());
+                    u1.putCrystallsOnBase();
+                }
+            }
+        }
     }
-
-
 }

@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.dune.game.core.units.BattleTank;
-import com.dune.game.core.units.Harvester;
 
 public class BattleMap {
     private class Cell {
@@ -43,11 +41,11 @@ public class BattleMap {
         }
 
         private void render(SpriteBatch batch) {
-            if (resource > 0) {
+            if (resource > 0 && cellX > 4 && cellY > 4) {
                 float scale = 0.5f + resource * 0.2f;
                 batch.draw(resourceTexture, cellX * 80, cellY * 80, 40, 40, 80, 80, scale, scale, 0.0f);
             } else {
-                if (resourceRegenerationRate > 0.01f) {
+                if (resourceRegenerationRate > 0.01f && cellX > 4 && cellY > 4) {
                     batch.draw(resourceTexture, cellX * 80, cellY * 80, 40, 40, 80, 80, 0.1f, 0.1f, 0.0f);
                 }
             }
@@ -65,7 +63,7 @@ public class BattleMap {
     private Cell[][] cells;
 
     public BattleMap() {
-        this.grassTexture = Assets.getInstance().getAtlas().findRegion("grass");
+        this.grassTexture = Assets.getInstance().getAtlas().findRegion("sand");
         this.resourceTexture = Assets.getInstance().getAtlas().findRegion("resource");
         this.cells = new Cell[COLUMNS_COUNT][ROWS_COUNT];
         for (int i = 0; i < COLUMNS_COUNT; i++) {
