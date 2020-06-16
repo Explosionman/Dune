@@ -15,6 +15,7 @@ import com.dune.game.core.controllers.BuildingsController;
 import com.dune.game.core.controllers.ParticleController;
 import com.dune.game.core.controllers.ProjectilesController;
 import com.dune.game.core.controllers.UnitsController;
+import com.dune.game.core.gui.GuiAiInfo;
 import com.dune.game.core.gui.GuiPlayerInfo;
 import com.dune.game.core.units.AbstractUnit;
 import com.dune.game.core.users_logic.AiLogic;
@@ -30,9 +31,9 @@ import java.util.List;
 @Getter
 public class GameController {
     private static final float CAMERA_SPEED = 240.0f;
-
     private BattleMap map;
     private GuiPlayerInfo guiPlayerInfo;
+    private GuiAiInfo guiAiInfo;
     private PlayerLogic playerLogic;
     private AiLogic aiLogic;
     private ProjectilesController projectilesController;
@@ -55,15 +56,15 @@ public class GameController {
 //    private Sound sound;
 
     public GameController() {
+        this.map = new BattleMap();
         this.mouse = new Vector2();
         this.tmp = new Vector2();
         this.playerLogic = new PlayerLogic(this);
-        this.aiLogic = new AiLogic(this);
+        this.aiLogic = new AiLogic(this, guiAiInfo);
         this.collider = new Collider(this);
         this.selectionStart = new Vector2(-1, -1);
         this.selectionEnd = new Vector2(-1, -1);
         this.selectedUnits = new ArrayList<>();
-        this.map = new BattleMap();
         this.pathFinder = new PathFinder(map);
         this.projectilesController = new ProjectilesController(this);
         this.particleController = new ParticleController();
@@ -99,6 +100,7 @@ public class GameController {
 //                    0.3f, 1.4f, 1, 1, 0, 1, 1, 0, 0, 0.5f);
 //        }
             guiPlayerInfo.update(dt);
+            guiAiInfo.update(dt);
         }
         ScreenManager.getInstance().resetCamera();
         stage.act(dt);
@@ -208,12 +210,14 @@ public class GameController {
             }
         });
 
-        final TextButton testBtn = new TextButton("Test", textButtonStyle);
+        final TextButton testBtn = new TextButton("Pause", textButtonStyle);
         testBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Test");
-                ;
+                paused = !paused;
+                if (paused) {
+                    testBtn.setText("Resume game");
+                } else testBtn.setText("Pause");
             }
         });
         Group menuGroup = new Group();
@@ -228,7 +232,12 @@ public class GameController {
 
         guiPlayerInfo = new GuiPlayerInfo(playerLogic, skin);
         guiPlayerInfo.setPosition(0, 700);
+
+        guiAiInfo = new GuiAiInfo(aiLogic, skin);
+        guiAiInfo.setPosition(500,700);
+
         stage.addActor(guiPlayerInfo);
+        stage.addActor(guiAiInfo);
         stage.addActor(menuGroup);
         skin.dispose();
     }
