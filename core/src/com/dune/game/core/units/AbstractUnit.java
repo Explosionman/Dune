@@ -67,6 +67,14 @@ public abstract class AbstractUnit extends GameObject implements Poolable, Targe
         return unitType;
     }
 
+    public int getContainerCapacity() {
+        return containerCapacity;
+    }
+
+    public int getContainer() {
+        return container;
+    }
+
     public Weapon getWeapon() {
         return weapon;
     }

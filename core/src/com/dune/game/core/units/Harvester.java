@@ -21,6 +21,7 @@ public class Harvester extends AbstractUnit {
         this.unitType = UnitType.HARVESTER;
     }
 
+
     @Override
     public void setup(BaseLogic baseLogic, float x, float y) {
         this.position.set(x, y);
@@ -30,6 +31,7 @@ public class Harvester extends AbstractUnit {
         this.destination.set(position);
         this.commandMoveTo(this.position, true);
     }
+
 
     public void updateWeapon(float dt) {
         if (gc.getMap().getResourceCount(position) > 0 && container < containerCapacity) {
@@ -65,10 +67,14 @@ public class Harvester extends AbstractUnit {
 
     public void update(float dt) {
         super.update(dt);
-        Building b = gc.getMap().getBuildingEntrance(getCellX(), getCellY());
-        if (b != null && b.getBuildingType() == Building.Type.STOCK && b.getOwnerLogic() == this.baseLogic) {
-            baseLogic.addMoney(container * 100);
-            container = 0;
+        for (int i = 0; i < gc.getBuildingsController().getActiveList().size(); i++) {
+            if (gc.getBuildingsController().getActiveList().get(i).getOwnerLogic() == this.baseLogic) {
+                Building b = gc.getBuildingsController().getActiveList().get(i);
+                if (b != null && b.getBuildingType() == Building.Type.STOCK && b.getOwnerLogic() == this.baseLogic && (position.dst(b.getPosition()) < 160.0f)) {
+                    baseLogic.addMoney(container * 20);
+                    container = 0;
+                }
+            }
         }
     }
 }
